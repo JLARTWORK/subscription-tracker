@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subs • Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    :root {
+      --font-sans: 'Inter', system_ui, sans-serif;
+    }
+    
+    body {
+      font-family: var(--font-sans);
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .sub-card {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                  box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    
+    .sub-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .modal {
+      animation: modalPop 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .renewal-date {
+      font-variant-numeric: tabular-nums;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .sub-row {
+      transition: background-color 0.1s ease;
+    }
+    
+    .sub-row:hover {
+      background-color: #18181b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+    }
+
+    .stat-number {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center">
+          <i class="fa-solid fa-credit-card text-zinc-950 text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="font-display text-3xl tracking-tighter">Subs</h1>
+          <p class="text-zinc-500 text-sm -mt-1">Subscription Tracker</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-x-2">
+        <button onclick="exportData()" 
+                class="flex items-center gap-x-2 px-4 py-2 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">
+          <i class="fa-solid fa-download text-xs"></i>
+          <span class="hidden sm:inline">Export</span>
+        </button>
+        <button onclick="importData()" 
+                class="flex items-center gap-x-2 px-4 py-2 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">
+          <i class="fa-solid fa-upload text-xs"></i>
+          <span class="hidden sm:inline">Import</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Monthly Total</span>
+        </div>
+        <div id="monthly-total" class="text-4xl font-semibold tracking-tighter money">$0.00</div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-calendar"></i>
+          <span>Yearly Estimate</span>
+        </div>
+        <div id="yearly-total" class="text-4xl font-semibold tracking-tighter money">$0.00</div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Active Subscriptions</span>
+        </div>
+        <div id="sub-count" class="text-4xl font-semibold tracking-tighter stat-number">0</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+      <div class="flex-1 relative">
+        <input id="search-input" 
+               type="text" 
+               placeholder="Search subscriptions..." 
+               onkeyup="filterSubscriptions()"
+               class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 placeholder:text-zinc-600 text-sm rounded-2xl pl-10 py-3 outline-none">
+        <i class="fa-solid fa-search absolute left-4 top-4 text-zinc-600"></i>
+      </div>
+      <button onclick="showAddModal()"
+              class="flex items-center justify-center gap-x-2 bg-white hover:bg-zinc-200 transition-colors text-zinc-950 font-medium px-6 rounded-2xl text-sm">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Subscription</span>
+      </button>
+    </div>
+
+    <!-- Subscriptions Table -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px]">
+          <thead>
+            <tr class="border-b border-zinc-800 text-xs text-zinc-500">
+              <th class="text-left font-normal px-6 py-4">Service</th>
+              <th class="text-right font-normal px-6 py-4 w-32">Monthly Cost</th>
+              <th class="text-left font-normal px-6 py-4 w-44">Next Renewal</th>
+              <th class="text-left font-normal px-6 py-4">Notes</th>
+              <th class="w-12"></th>
+            </tr>
+          </thead>
+          <tbody id="subs-body" class="text-sm divide-y divide-zinc-800">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden px-6 py-16 text-center">
+        <div class="mx-auto w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-wallet text-xl text-zinc-600"></i>
+        </div>
+        <p class="font-medium text-zinc-300">No subscriptions yet</p>
+        <p class="text-sm text-zinc-500 mt-1">Click "Add Subscription" to get started</p>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-4 px-1 text-xs text-zinc-500">
+      <div>
+        Data is stored in your browser only.
+      </div>
+      <button onclick="clearAllData()" 
+              class="hover:text-red-400 transition-colors flex items-center gap-x-1.5">
+        <i class="fa-solid fa-trash text-xs"></i>
+        <span>Clear all data</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="modal" onclick="if (event.target.id === 'modal') hideModal()" 
+       class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div onclick="event.stopImmediatePropagation()" 
+         class="modal bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-md shadow-2xl">
+      
+      <div class="px-6 pt-6 pb-4">
+        <div class="flex items-center justify-between mb-5">
+          <h2 id="modal-title" class="text-xl font-semibold tracking-tight">Add Subscription</h2>
+          <button onclick="hideModal()" class="text-zinc-500 hover:text-zinc-300 w-8 h-8 flex items-center justify-center">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Service Name -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">SERVICE NAME</label>
+            <input id="input-name" type="text" placeholder="Netflix, Spotify, etc."
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+
+          <!-- Monthly Cost -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">MONTHLY COST</label>
+            <div class="relative">
+              <div class="absolute left-4 top-3.5 text-zinc-500">$</div>
+              <input id="input-cost" type="number" step="0.01" placeholder="0.00"
+                     class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl pl-7 pr-4 py-3 text-sm outline-none money">
+            </div>
+          </div>
+
+          <!-- Next Renewal -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">NEXT RENEWAL DATE</label>
+            <input id="input-date" type="date"
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">NOTES <span class="text-zinc-600">(optional)</span></label>
+            <input id="input-notes" type="text" placeholder="Premium plan, family sharing..."
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-zinc-800 px-6 py-4 flex gap-3">
+        <button onclick="hideModal()" 
+                class="flex-1 py-3 rounded-2xl border border-zinc-800 hover:bg-zinc-950 text-sm font-medium transition-colors">
+          Cancel
+        </button>
+        <button id="save-button"
+                class="flex-1 py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-sm transition-colors">
+          Add Subscription
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-800 border border-zinc-700 text-sm px-5 py-3 rounded-2xl shadow-xl flex items-center gap-x-2">
+    <span id="toast-message"></span>
+  </div>
+
+  <script>
+    // Tailwind script configuration
+    function initTailwind() {
+      document.documentElement.style.setProperty('--accent', '#3b82f6');
+    }
+
+    let subscriptions = [];
+    let editingId = null;
+    let currentFilter = '';
+
+    const STORAGE_KEY = 'subs-tracker-v1';
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        subscriptions = JSON.parse(saved);
+      } else {
+        // Seed with example data
+        subscriptions = [
+          {
+            id: 'ex1',
+            name: 'Netflix',
+            cost: 15.49,
+            nextRenewal: '2026-02-18',
+            notes: 'Premium plan'
+          },
+          {
+            id: 'ex2',
+            name: 'Spotify',
+            cost: 10.99,
+            nextRenewal: '2026-02-12',
+            notes: 'Family'
+          },
+          {
+            id: 'ex3',
+            name: 'YouTube Premium',
+            cost: 13.99,
+            nextRenewal: '2026-02-25',
+            notes: ''
+          },
+          {
+            id: 'ex4',
+            name: 'GitHub Pro',
+            cost: 4.00,
+            nextRenewal: '2026-02-10',
+            notes: 'Annual discount applied'
+          },
+          {
+            id: 'ex5',
+            name: 'Adobe Creative Cloud',
+            cost: 59.99,
+            nextRenewal: '2026-03-01',
+            notes: 'Student discount'
+          }
+        ];
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(subscriptions));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toast-message');
+      msg.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      
+      setTimeout(() => {
+        toast.classList.remove('flex');
+        toast.classList.add('hidden');
+      }, 2200);
+    }
+
+    function formatCurrency(amount) {
+      return amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }
+
+    function getDaysUntil(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const renewal = new Date(dateStr + 'T00:00:00');
+      const diffTime = renewal - today;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getStatus(dateStr) {
+      const days = getDaysUntil(dateStr);
+      if (days < 0) return { label: 'Overdue', color: 'bg-red-500', text: 'text-red-400' };
+      if (days === 0) return { label: 'Today', color: 'bg-orange-500', text: 'text-orange-400' };
+      if (days <= 7) return { label: `${days}d`, color: 'bg-orange-500', text: 'text-orange-400' };
+      return { label: `${days}d`, color: 'bg-emerald-500', text: 'text-emerald-400' };
+    }
+
+    function updateStats() {
+      const totalMonthly = subscriptions.reduce((sum, sub) => sum + sub.cost, 0);
+      const yearly = totalMonthly * 12;
+      
+      document.getElementById('monthly-total').textContent = '$' + formatCurrency(totalMonthly);
+      document.getElementById('yearly-total').textContent = '$' + formatCurrency(yearly);
+      document.getElementById('sub-count').textContent = subscriptions.length;
+    }
+
+    function renderSubscriptions(filteredSubs = null) {
+      const tbody = document.getElementById('subs-body');
+      const empty = document.getElementById('empty-state');
+      
+      const toRender = filteredSubs || subscriptions;
+      
+      if (toRender.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      
+      empty.classList.add('hidden');
+      
+      // Sort by renewal date ascending
+      const sorted = [...toRender].sort((a, b) => 
+        new Date(a.nextRenewal) - new Date(b.nextRenewal)
+      );
+
+      tbody.innerHTML = sorted.map(sub => {
+        const status = getStatus(sub.nextRenewal);
+        const days = getDaysUntil(sub.nextRenewal);
+        const isOverdue = days < 0;
+        
+        return `
+          <tr class="sub-row group">
+            <td class="px-6 py-4">
+              <div class="font-medium">${escapeHtml(sub.name)}</div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="font-medium money">$${formatCurrency(sub.cost)}</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-x-2">
+                <div>
+                  <div class="font-medium renewal-date">${formatDate(sub.nextRenewal)}</div>
+                  <div class="text-[10px] ${status.text} flex items-center gap-x-1">
+                    <span class="status-dot ${status.color} inline-block"></span>
+                    <span>${status.label}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-zinc-400 text-sm max-w-[180px]">
+              <div class="truncate">${escapeHtml(sub.notes || '')}</div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="markAsPaid('${sub.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 transition-colors"
+                        title="Mark as paid &amp; advance 1 month">
+                  <i class="fa-solid fa-check text-xs"></i>
+                </button>
+                <button onclick="editSubscription('${sub.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors">
+                  <i class="fa-solid fa-edit text-xs"></i>
+                </button>
+                <button onclick="deleteSubscription('${sub.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-zinc-800 hover:bg-red-900/60 hover:text-red-400 transition-colors">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function filterSubscriptions() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      currentFilter = query;
+      
+      if (!query) {
+        renderSubscriptions();
+        return;
+      }
+      
+      const filtered = subscriptions.filter(sub =>
+        sub.name.toLowerCase().includes(query) ||
+        (sub.notes && sub.notes.toLowerCase().includes(query))
+      );
+      renderSubscriptions(filtered);
+    }
+
+    function showAddModal() {
+      editingId = null;
+      document.getElementById('modal-title').textContent = 'Add Subscription';
+      document.getElementById('save-button').textContent = 'Add Subscription';
+      
+      // Clear inputs
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-cost').value = '';
+      document.getElementById('input-date').value = '';
+      document.getElementById('input-notes').value = '';
+      
+      // Default to 30 days from now
+      const defaultDate = new Date();
+      defaultDate.setDate(defaultDate.getDate() + 30);
+      document.getElementById('input-date').value = defaultDate.toISOString().split('T')[0];
+      
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('input-name').focus();
+    }
+
+    function editSubscription(id) {
+      const sub = subscriptions.find(s => s.id === id);
+      if (!sub) return;
+      
+      editingId = id;
+      document.getElementById('modal-title').textContent = 'Edit Subscription';
+      document.getElementById('save-button').textContent = 'Save Changes';
+      
+      document.getElementById('input-name').value = sub.name;
+      document.getElementById('input-cost').value = sub.cost;
+      document.getElementById('input-date').value = sub.nextRenewal;
+      document.getElementById('input-notes').value = sub.notes || '';
+      
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function hideModal() {
+      document.getElementById('modal').classList.remove('flex');
+      document.getElementById('modal').classList.add('hidden');
+      editingId = null;
+    }
+
+    function saveSubscription() {
+      const name = document.getElementById('input-name').value.trim();
+      const costStr = document.getElementById('input-cost').value;
+      const date = document.getElementById('input-date').value;
+      const notes = document.getElementById('input-notes').value.trim();
+
+      if (!name || !costStr || !date) {
+        alert('Please fill in service name, cost, and renewal date.');
+        return;
+      }
+
+      const cost = parseFloat(costStr);
+      if (isNaN(cost) || cost < 0) {
+        alert('Please enter a valid cost.');
+        return;
+      }
+
+      if (editingId) {
+        // Update existing
+        const sub = subscriptions.find(s => s.id === editingId);
+        sub.name = name;
+        sub.cost = cost;
+        sub.nextRenewal = date;
+        sub.notes = notes;
+        showToast('Subscription updated');
+      } else {
+        // Create new
+        subscriptions.push({
+          id: 'sub_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
+          name,
+          cost,
+          nextRenewal: date,
+          notes
+        });
+        showToast('Subscription added');
+      }
+
+      saveData();
+      hideModal();
+      updateStats();
+      renderSubscriptions();
+      filterSubscriptions();
+    }
+
+    function markAsPaid(id) {
+      const sub = subscriptions.find(s => s.id === id);
+      if (!sub) return;
+
+      const currentDate = new Date(sub.nextRenewal + 'T00:00:00');
+      
+      // Add exactly one month (handles different month lengths reasonably)
+      let newMonth = currentDate.getMonth() + 1;
+      let newYear = currentDate.getFullYear();
+      
+      if (newMonth > 11) {
+        newMonth = 0;
+        newYear++;
+      }
+      
+      // Preserve the day, but clamp to end of month if needed
+      let newDay = currentDate.getDate();
+      const lastDayOfMonth = new Date(newYear, newMonth + 1, 0).getDate();
+      if (newDay > lastDayOfMonth) newDay = lastDayOfMonth;
+      
+      const newDate = new Date(newYear, newMonth, newDay);
+      sub.nextRenewal = newDate.toISOString().split('T')[0];
+      
+      saveData();
+      updateStats();
+      renderSubscriptions();
+      filterSubscriptions();
+      
+      showToast(`${sub.name} marked as paid — renewed to ${formatDate(sub.nextRenewal)}`);
+    }
+
+    function deleteSubscription(id) {
+      const sub = subscriptions.find(s => s.id === id);
+      if (!sub) return;
+      
+      if (!confirm(`Delete "${sub.name}"?`)) return;
+      
+      subscriptions = subscriptions.filter(s => s.id !== id);
+      saveData();
+      updateStats();
+      renderSubscriptions();
+      filterSubscriptions();
+      showToast('Subscription deleted');
+    }
+
+    function exportData() {
+      if (subscriptions.length === 0) {
+        alert('No data to export.');
+        return;
+      }
+      
+      const dataStr = JSON.stringify(subscriptions, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `subscriptions-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showToast('Data exported');
+    }
+
+    function importData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            
+            if (!Array.isArray(imported)) {
+              throw new Error('Invalid file format');
+            }
+            
+            // Basic validation
+            const valid = imported.every(item => 
+              item.name && typeof item.cost === 'number' && item.nextRenewal
+            );
+            
+            if (!valid) {
+              throw new Error('File contains invalid subscription data');
+            }
+            
+            if (confirm(`Import ${imported.length} subscriptions? This will replace your current data.`)) {
+              subscriptions = imported.map(item => ({
+                id: item.id || ('sub_' + Date.now().toString(36) + Math.random().toString(36).substr(2)),
+                name: item.name,
+                cost: item.cost,
+                nextRenewal: item.nextRenewal,
+                notes: item.notes || ''
+              }));
+              
+              saveData();
+              updateStats();
+              renderSubscriptions();
+              filterSubscriptions();
+              showToast(`Imported ${imported.length} subscriptions`);
+            }
+          } catch (err) {
+            alert('Failed to import: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+      
+      input.click();
+    }
+
+    function clearAllData() {
+      if (!confirm('This will permanently delete ALL your subscription data. Are you sure?')) return;
+      if (!confirm('Last chance — delete everything?')) return;
+      
+      subscriptions = [];
+      localStorage.removeItem(STORAGE_KEY);
+      updateStats();
+      renderSubscriptions();
+      filterSubscriptions();
+      showToast('All data cleared');
+    }
+
+    // Attach save button handler
+    function attachModalHandlers() {
+      const saveBtn = document.getElementById('save-button');
+      saveBtn.onclick = saveSubscription;
+      
+      // Allow Enter key in inputs to save
+      const inputs = ['input-name', 'input-cost', 'input-date', 'input-notes'];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              saveSubscription();
+            }
+          });
+        }
+      });
+      
+      // Escape to close modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const modal = document.getElementById('modal');
+          if (!modal.classList.contains('hidden')) {
+            hideModal();
+          }
+        }
+      });
+    }
+
+    function init() {
+      initTailwind();
+      loadData();
+      updateStats();
+      renderSubscriptions();
+      attachModalHandlers();
+      
+      // Make search a bit nicer
+      const search = document.getElementById('search-input');
+      search.addEventListener('input', filterSubscriptions);
+      
+      // Keyboard shortcut: "/" focuses search
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          search.focus();
+        }
+      });
+      
+      // Initial tip
+      if (subscriptions.length > 0 && localStorage.getItem('subs-tracker-v1-seen-tip') !== '1') {
+        setTimeout(() => {
+          // showToast('Tip: Hover rows to reveal Mark Paid / Edit / Delete');
+          localStorage.setItem('subs-tracker-v1-seen-tip', '1');
+        }, 4500);
+      }
+    }
+
+    // Boot
+    window.onload = init;
+  </script>
+</body>
+</html>
