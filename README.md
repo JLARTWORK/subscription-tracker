@@ -1,24 +1,33 @@
-# Subscription Tracker
+# Subs • Payment Tracker
 
-A simple, private subscription tracker that runs entirely in your browser. Track your services, renewal dates, and monthly costs.
+A simple, private tracker for subscriptions **and** non-subscription bills. Runs entirely in your browser.
 
 **Live site:** https://jlartwork.github.io/subscription-tracker/
 
 ## Features
 
-- Add, edit, and delete subscriptions
-- "Mark as Paid" button that automatically advances the renewal date by one month
-- See total monthly and yearly spend at a glance
-- Color-coded urgency (overdue, due soon, upcoming)
-- Search and sort by renewal date
-- Export / Import your data as JSON (easy backup)
-- Everything stored locally in your browser (no account, no server, fully private)
+- Track both **Subscriptions** and **Bills** in one unified list
+- Support for different frequencies: Monthly, Quarterly, Semi-annually, Yearly, One-time
+- Smart "Monthly Burn Rate" that prorates non-monthly payments (e.g. $1200 car insurance every 6 months = $200/mo)
+- "Due in Next 30 Days" shows actual cash you'll need to pay soon
+- Filter by All / Subscriptions / Bills
+- "Mark as Paid" automatically advances the due date based on the item's frequency
+- Color-coded urgency + search
+- Export / Import JSON for backups
+- 100% private — data lives only in your browser (localStorage)
 
 ## Getting Started
 
 1. Visit the live site
-2. Start adding your subscriptions
-3. Your data is automatically saved in your browser
+2. Add subscriptions or bills (with the correct frequency)
+3. Use **Mark as Paid** — it will automatically set the next due date based on frequency
+4. Your data is saved automatically in your browser
+
+## Tips
+
+- For yearly or semi-annual bills (insurance, property tax, etc.), choose the matching frequency. The **Monthly Burn Rate** will correctly prorate them.
+- One-time items are removed after you "Mark as Paid".
+- Use Export/Import if you want to move your data to another browser or device.
 
 ## Backing Up Your Data
 
