@@ -1,4 +1,4 @@
-# Subs • Payment Tracker
+# JL SubNexus
 
 A simple, private tracker for subscriptions **and** non-subscription bills. Runs entirely in your browser.
 
@@ -36,7 +36,7 @@ A simple, private tracker for subscriptions **and** non-subscription bills. Runs
 
 ## Backing Up Your Data
 
-- Click **Export** to download a backup file (`subs-tracker-backup-YYYY-MM-DD.json`)
+- Click **Export** to download a backup file (`jl-subnexus-backup-YYYY-MM-DD.json`)
 - Backups include payments, paycheck amount, pay schedule, and theme preference
 - Use **Import** to restore from a backup (older item-only backups still work)
 - Theme is kept if you use **Clear all data** — only payments and paycheck settings are wiped

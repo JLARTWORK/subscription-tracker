@@ -1,7 +1,7 @@
 {
-  "name": "Subs • Payment Tracker",
-  "short_name": "Subs",
-  "description": "Private subscription and bill tracker — runs entirely in your browser.",
+  "name": "JL SubNexus",
+  "short_name": "SubNexus",
+  "description": "Private payment and subscription tracker — runs entirely in your browser.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#09090b",
@@ -9,9 +9,15 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23ffffff'/%3E%3Cpath d='M128 176h256v48H128zm0 96h256v48H128zm0 96h160v48H128z' fill='%2309090b'/%3E%3C/svg%3E",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

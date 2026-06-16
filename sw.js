@@ -1,9 +1,13 @@
-const CACHE = 'subs-tracker-v7';
+const CACHE = 'jl-subnexus-v8';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './sw.js'
+  './sw.js',
+  './logo.png',
+  './logo-header.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 const CDN_ASSETS = [
