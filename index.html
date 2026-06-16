@@ -17,8 +17,9 @@
   <meta name="apple-mobile-web-app-title" content="JL SubNexus">
   <meta name="description" content="JL SubNexus — private payment and subscription tracker in your browser.">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="logo.png" type="image/png">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="logo-header.png" type="image/png" id="favicon-link">
+  <link rel="apple-touch-icon" href="logo-header.png" id="apple-touch-link">
+  <script src="logos.js"></script>
   <title>JL SubNexus</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -323,7 +324,7 @@
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-x-3 min-w-0">
         <div class="app-logo-wrap" aria-hidden="true">
-          <img src="logo-header.png" alt="" class="app-logo" width="48" height="48">
+          <img id="app-logo-img" src="logo-header.png" alt="" class="app-logo" width="48" height="48">
         </div>
         <div class="min-w-0">
           <h1 class="font-display text-2xl sm:text-3xl tracking-tighter truncate">JL SubNexus</h1>
@@ -1829,7 +1830,22 @@
       });
     }
 
+    function applyEmbeddedLogos() {
+      const logoUri = window.SUBNEXUS_LOGOS && window.SUBNEXUS_LOGOS.header;
+      if (!logoUri) return;
+
+      const logoImg = document.getElementById('app-logo-img');
+      if (logoImg) logoImg.src = logoUri;
+
+      const favicon = document.getElementById('favicon-link');
+      if (favicon) favicon.href = logoUri;
+
+      const appleTouch = document.getElementById('apple-touch-link');
+      if (appleTouch) appleTouch.href = logoUri;
+    }
+
     function init() {
+      applyEmbeddedLogos();
       initTailwind();
       initTheme();
       initPaycheck();

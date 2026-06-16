@@ -1,9 +1,10 @@
-const CACHE = 'jl-subnexus-v8';
+const CACHE = 'jl-subnexus-v9';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './sw.js',
+  './logos.js',
   './logo.png',
   './logo-header.png',
   './icon-192.png',
