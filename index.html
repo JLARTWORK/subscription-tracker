@@ -1,1 +1,295 @@
-<!PLACEHOLDER>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09090b">
+  <script>
+    (function () {
+      const theme = localStorage.getItem('subs-tracker-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === 'light' ? '#fafafa' : '#09090b';
+    })();
+  </script>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Subs">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23ffffff'/%3E%3Cpath d='M128 176h256v48H128zm0 96h256v48H128zm0 96h160v48H128z' fill='%2309090b'/%3E%3C/svg%3E">
+  <title>Subs • Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    :root {
+      --font-sans: 'Inter', system_ui, sans-serif;
+    }
+    
+    body {
+      font-family: var(--font-sans);
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .sub-card {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                  box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    
+    .sub-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .modal {
+      animation: modalPop 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .renewal-date {
+      font-variant-numeric: tabular-nums;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .sub-row {
+      transition: background-color 0.1s ease;
+    }
+    
+    .sub-row:hover {
+      background-color: #18181b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+    }
+
+    .stat-number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row-actions {
+      opacity: 1;
+    }
+
+    @media (min-width: 640px) {
+      .row-actions {
+        opacity: 0;
+      }
+
+      .sub-row:hover .row-actions,
+      .sub-row:focus-within .row-actions {
+        opacity: 1;
+      }
+    }
+
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .theme-switch-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #3f3f46;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fafafa;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider::before {
+      transform: translateX(20px);
+      background-color: #fffbeb;
+    }
+
+    [data-theme="light"] body {
+      color: #09090b;
+    }
+
+    [data-theme="light"] .bg-zinc-950 {
+      background-color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-zinc-900 {
+      background-color: #ffffff !important;
+    }
+
+    [data-theme="light"] .bg-zinc-800 {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .border-zinc-800,
+    [data-theme="light"] .border-zinc-700,
+    [data-theme="light"] .divide-zinc-800 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .border-zinc-600 {
+      border-color: #d4d4d8 !important;
+    }
+
+    [data-theme="light"] .text-zinc-200,
+    [data-theme="light"] .text-zinc-300,
+    [data-theme="light"] .text-zinc-400,
+    [data-theme="light"] .text-zinc-500,
+    [data-theme="light"] .text-zinc-600 {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-900:hover,
+    [data-theme="light"] .hover\:bg-zinc-800:hover,
+    [data-theme="light"] .hover\:bg-zinc-950:hover {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-700:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-200:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:text-zinc-300:hover {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .sub-row:hover {
+      background-color: #f4f4f5;
+    }
+
+    [data-theme="light"] .focus\:border-zinc-700:focus {
+      border-color: #a1a1aa !important;
+    }
+
+    [data-theme="light"] .placeholder\:text-zinc-600::placeholder {
+      color: #3f3f46 !important;
+    }
+
+    [data-theme="light"] .bg-white.text-zinc-950,
+    [data-theme="light"] #save-button.bg-white {
+      background-color: #18181b !important;
+      color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-white.hover\:bg-zinc-200:hover {
+      background-color: #27272a !important;
+    }
+
+    [data-theme="light"] .bg-black\/70 {
+      background-color: rgb(0 0 0 / 0.35) !important;
+    }
+
+    [data-theme="light"] .bg-amber-900\/40 {
+      background-color: rgb(251 191 36 / 0.15) !important;
+    }
+
+    [data-theme="light"] .text-amber-400 {
+      color: #b45309 !important;
+    }
+
+    [data-theme="light"] .bg-blue-900\/40 {
+      background-color: rgb(59 130 246 / 0.12) !important;
+    }
+
+    [data-theme="light"] .text-blue-400 {
+      color: #2563eb !important;
+    }
+
+    [data-theme="light"] .bg-emerald-900\/30 {
+      background-color: rgb(16 185 129 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:bg-emerald-900\/50:hover {
+      background-color: rgb(16 185 129 / 0.2) !important;
+    }
+
+    [data-theme="light"] .text-emerald-400 {
+      color: #059669 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-red-900\/60:hover {
+      background-color: rgb(239 68 68 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:text-red-400:hover,
+    [data-theme="light"] .text-red-400 {
+      color: #dc2626 !important;
+    }
+
+    [data-theme="light"] .text-orange-400 {
+      color: #ea580c !important;
+    }
+
+    [data-theme="light"] .theme-switch-slider {
+      background-color: #d4d4d8;
+    }
+
+    [data-theme="light"] .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
+
+    [data-theme="light"] .text-violet-400 {
+      color: #7c3aed !important;
+    }
+
+    [data-theme="light"] .bg-violet-900\/30 {
+      background-color: rgb(139 92 246 / 0.12) !important;
+    }
+
+    [data-theme="light"] .border-violet-800\/50 {
+      border-color: rgb(139 92 246 / 0.25) !important;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+PLACEHOLDER_TRUNCATED
