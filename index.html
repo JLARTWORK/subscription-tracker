@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#09090b">
+  <script>
+    (function () {
+      const theme = localStorage.getItem('subs-tracker-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === 'light' ? '#fafafa' : '#09090b';
+    })();
+  </script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Subs">
@@ -98,6 +106,189 @@
         opacity: 1;
       }
     }
+
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .theme-switch-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #3f3f46;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fafafa;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider::before {
+      transform: translateX(20px);
+      background-color: #fffbeb;
+    }
+
+    [data-theme="light"] body {
+      color: #3f3f46;
+    }
+
+    [data-theme="light"] .bg-zinc-950 {
+      background-color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-zinc-900 {
+      background-color: #ffffff !important;
+    }
+
+    [data-theme="light"] .bg-zinc-800 {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .border-zinc-800,
+    [data-theme="light"] .border-zinc-700,
+    [data-theme="light"] .divide-zinc-800 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .border-zinc-600 {
+      border-color: #d4d4d8 !important;
+    }
+
+    [data-theme="light"] .text-zinc-200 {
+      color: #27272a !important;
+    }
+
+    [data-theme="light"] .text-zinc-300 {
+      color: #52525b !important;
+    }
+
+    [data-theme="light"] .text-zinc-400 {
+      color: #71717a !important;
+    }
+
+    [data-theme="light"] .text-zinc-500 {
+      color: #71717a !important;
+    }
+
+    [data-theme="light"] .text-zinc-600 {
+      color: #a1a1aa !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-900:hover,
+    [data-theme="light"] .hover\:bg-zinc-800:hover,
+    [data-theme="light"] .hover\:bg-zinc-950:hover {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-700:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-200:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:text-zinc-300:hover {
+      color: #27272a !important;
+    }
+
+    [data-theme="light"] .sub-row:hover {
+      background-color: #f4f4f5;
+    }
+
+    [data-theme="light"] .focus\:border-zinc-700:focus {
+      border-color: #a1a1aa !important;
+    }
+
+    [data-theme="light"] .placeholder\:text-zinc-600::placeholder {
+      color: #a1a1aa !important;
+    }
+
+    [data-theme="light"] .bg-white.text-zinc-950,
+    [data-theme="light"] #save-button.bg-white {
+      background-color: #18181b !important;
+      color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-white.hover\:bg-zinc-200:hover {
+      background-color: #27272a !important;
+    }
+
+    [data-theme="light"] .bg-black\/70 {
+      background-color: rgb(0 0 0 / 0.35) !important;
+    }
+
+    [data-theme="light"] .bg-amber-900\/40 {
+      background-color: rgb(251 191 36 / 0.15) !important;
+    }
+
+    [data-theme="light"] .text-amber-400 {
+      color: #b45309 !important;
+    }
+
+    [data-theme="light"] .bg-blue-900\/40 {
+      background-color: rgb(59 130 246 / 0.12) !important;
+    }
+
+    [data-theme="light"] .text-blue-400 {
+      color: #2563eb !important;
+    }
+
+    [data-theme="light"] .bg-emerald-900\/30 {
+      background-color: rgb(16 185 129 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:bg-emerald-900\/50:hover {
+      background-color: rgb(16 185 129 / 0.2) !important;
+    }
+
+    [data-theme="light"] .text-emerald-400 {
+      color: #059669 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-red-900\/60:hover {
+      background-color: rgb(239 68 68 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:text-red-400:hover,
+    [data-theme="light"] .text-red-400 {
+      color: #dc2626 !important;
+    }
+
+    [data-theme="light"] .text-orange-400 {
+      color: #ea580c !important;
+    }
+
+    [data-theme="light"] .theme-switch-slider {
+      background-color: #d4d4d8;
+    }
+
+    [data-theme="light"] .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
@@ -115,6 +306,33 @@
       </div>
       
       <div class="flex items-center gap-x-2">
+        <div class="relative">
+          <button id="settings-btn" onclick="toggleSettings(event)"
+                  class="flex items-center justify-center w-10 h-10 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors"
+                  aria-label="Settings" aria-expanded="false" aria-haspopup="true">
+            <i class="fa-solid fa-gear text-sm"></i>
+          </button>
+          <div id="settings-menu"
+               class="hidden absolute right-0 top-full mt-2 w-72 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-40 overflow-hidden">
+            <div class="px-4 py-3 border-b border-zinc-800">
+              <div class="text-sm font-medium">Settings</div>
+              <div class="text-xs text-zinc-500 mt-0.5">App preferences</div>
+            </div>
+            <div class="px-4 py-3 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-sm font-medium flex items-center gap-x-2">
+                  <i id="theme-mode-icon" class="fa-solid fa-moon text-xs text-zinc-400"></i>
+                  <span>Appearance</span>
+                </div>
+                <div id="theme-mode-label" class="text-xs text-zinc-500 mt-0.5">Dark mode</div>
+              </div>
+              <label class="theme-switch" title="Toggle light/dark theme">
+                <input type="checkbox" id="theme-toggle" aria-label="Use light theme">
+                <span class="theme-switch-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
         <button onclick="exportData()" 
                 class="flex items-center gap-x-2 px-4 py-2 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">
           <i class="fa-solid fa-download text-xs"></i>
@@ -327,6 +545,74 @@
     let currentFilter = '';
 
     const STORAGE_KEY = 'subs-tracker-v1';
+    const THEME_KEY = 'subs-tracker-theme';
+
+    function getTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
+
+    function updateThemeUi(theme) {
+      const toggle = document.getElementById('theme-toggle');
+      const label = document.getElementById('theme-mode-label');
+      const icon = document.getElementById('theme-mode-icon');
+      if (toggle) toggle.checked = theme === 'light';
+      if (label) label.textContent = theme === 'light' ? 'Light mode' : 'Dark mode';
+      if (icon) {
+        icon.className = theme === 'light'
+          ? 'fa-solid fa-sun text-xs text-amber-400'
+          : 'fa-solid fa-moon text-xs text-zinc-400';
+      }
+    }
+
+    function setTheme(theme) {
+      const nextTheme = theme === 'light' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem(THEME_KEY, nextTheme);
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = nextTheme === 'light' ? '#fafafa' : '#09090b';
+
+      updateThemeUi(nextTheme);
+    }
+
+    function toggleSettings(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('settings-menu');
+      const button = document.getElementById('settings-btn');
+      if (!menu || !button) return;
+
+      const isHidden = menu.classList.toggle('hidden');
+      button.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+    }
+
+    function initTheme() {
+      updateThemeUi(getTheme());
+
+      const toggle = document.getElementById('theme-toggle');
+      if (toggle) {
+        toggle.addEventListener('change', () => {
+          setTheme(toggle.checked ? 'light' : 'dark');
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        const menu = document.getElementById('settings-menu');
+        const button = document.getElementById('settings-btn');
+        if (!menu || menu.classList.contains('hidden')) return;
+        if (menu.contains(event.target) || button.contains(event.target)) return;
+        menu.classList.add('hidden');
+        button.setAttribute('aria-expanded', 'false');
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const menu = document.getElementById('settings-menu');
+        const button = document.getElementById('settings-btn');
+        if (!menu || menu.classList.contains('hidden')) return;
+        menu.classList.add('hidden');
+        if (button) button.setAttribute('aria-expanded', 'false');
+      });
+    }
 
     function toLocalDateStr(date) {
       const y = date.getFullYear();
@@ -952,6 +1238,7 @@
 
     function init() {
       initTailwind();
+      initTheme();
       loadData();
       
       // Migration for old data (add type/frequency if missing)
