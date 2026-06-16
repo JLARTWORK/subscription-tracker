@@ -1,1 +1,1890 @@
-PLACEHOLDER_TEST
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09090b">
+  <script>
+    (function () {
+      const theme = localStorage.getItem('subs-tracker-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === 'light' ? '#fafafa' : '#09090b';
+    })();
+  </script>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JL SubNexus">
+  <meta name="description" content="JL SubNexus — private payment and subscription tracker in your browser.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>JL SubNexus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    :root {
+      --font-sans: 'Inter', system_ui, sans-serif;
+    }
+    
+    body {
+      font-family: var(--font-sans);
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .sub-card {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                  box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    
+    .sub-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .modal {
+      animation: modalPop 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .renewal-date {
+      font-variant-numeric: tabular-nums;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .sub-row {
+      transition: background-color 0.1s ease;
+    }
+    
+    .sub-row:hover {
+      background-color: #18181b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+    }
+
+    .stat-number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row-actions {
+      opacity: 1;
+    }
+
+    @media (min-width: 640px) {
+      .row-actions {
+        opacity: 0;
+      }
+
+      .sub-row:hover .row-actions,
+      .sub-row:focus-within .row-actions {
+        opacity: 1;
+      }
+    }
+
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .theme-switch-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #3f3f46;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fafafa;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
+
+    .theme-switch input:checked + .theme-switch-slider::before {
+      transform: translateX(20px);
+      background-color: #fffbeb;
+    }
+
+    [data-theme="light"] body {
+      color: #09090b;
+    }
+
+    [data-theme="light"] .bg-zinc-950 {
+      background-color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-zinc-900 {
+      background-color: #ffffff !important;
+    }
+
+    [data-theme="light"] .bg-zinc-800 {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .border-zinc-800,
+    [data-theme="light"] .border-zinc-700,
+    [data-theme="light"] .divide-zinc-800 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .border-zinc-600 {
+      border-color: #d4d4d8 !important;
+    }
+
+    [data-theme="light"] .text-zinc-200,
+    [data-theme="light"] .text-zinc-300,
+    [data-theme="light"] .text-zinc-400,
+    [data-theme="light"] .text-zinc-500,
+    [data-theme="light"] .text-zinc-600 {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-900:hover,
+    [data-theme="light"] .hover\:bg-zinc-800:hover,
+    [data-theme="light"] .hover\:bg-zinc-950:hover {
+      background-color: #f4f4f5 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-700:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-zinc-200:hover {
+      background-color: #e4e4e7 !important;
+    }
+
+    [data-theme="light"] .hover\:text-zinc-300:hover {
+      color: #09090b !important;
+    }
+
+    [data-theme="light"] .sub-row:hover {
+      background-color: #f4f4f5;
+    }
+
+    [data-theme="light"] .focus\:border-zinc-700:focus {
+      border-color: #a1a1aa !important;
+    }
+
+    [data-theme="light"] .placeholder\:text-zinc-600::placeholder {
+      color: #3f3f46 !important;
+    }
+
+    [data-theme="light"] .bg-white.text-zinc-950,
+    [data-theme="light"] #save-button.bg-white {
+      background-color: #18181b !important;
+      color: #fafafa !important;
+    }
+
+    [data-theme="light"] .bg-white.hover\:bg-zinc-200:hover {
+      background-color: #27272a !important;
+    }
+
+    [data-theme="light"] .bg-black\/70 {
+      background-color: rgb(0 0 0 / 0.35) !important;
+    }
+
+    [data-theme="light"] .bg-amber-900\/40 {
+      background-color: rgb(251 191 36 / 0.15) !important;
+    }
+
+    [data-theme="light"] .text-amber-400 {
+      color: #b45309 !important;
+    }
+
+    [data-theme="light"] .bg-blue-900\/40 {
+      background-color: rgb(59 130 246 / 0.12) !important;
+    }
+
+    [data-theme="light"] .text-blue-400 {
+      color: #2563eb !important;
+    }
+
+    [data-theme="light"] .bg-emerald-900\/30 {
+      background-color: rgb(16 185 129 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:bg-emerald-900\/50:hover {
+      background-color: rgb(16 185 129 / 0.2) !important;
+    }
+
+    [data-theme="light"] .text-emerald-400 {
+      color: #059669 !important;
+    }
+
+    [data-theme="light"] .hover\:bg-red-900\/60:hover {
+      background-color: rgb(239 68 68 / 0.12) !important;
+    }
+
+    [data-theme="light"] .hover\:text-red-400:hover,
+    [data-theme="light"] .text-red-400 {
+      color: #dc2626 !important;
+    }
+
+    [data-theme="light"] .text-orange-400 {
+      color: #ea580c !important;
+    }
+
+    [data-theme="light"] .theme-switch-slider {
+      background-color: #d4d4d8;
+    }
+
+    [data-theme="light"] .theme-switch input:checked + .theme-switch-slider {
+      background-color: #fbbf24;
+    }
+
+    [data-theme="light"] .text-violet-400 {
+      color: #7c3aed !important;
+    }
+
+    [data-theme="light"] .bg-violet-900\/30 {
+      background-color: rgb(139 92 246 / 0.12) !important;
+    }
+
+    [data-theme="light"] .border-violet-800\/50 {
+      border-color: rgb(139 92 246 / 0.25) !important;
+    }
+
+    .app-logo-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow:
+        0 0 0 2px rgb(212 175 55 / 0.45),
+        0 4px 14px rgb(0 0 0 / 0.35);
+    }
+
+    .app-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    [data-theme="light"] .app-logo-wrap {
+      box-shadow:
+        0 0 0 2px rgb(180 140 30 / 0.55),
+        0 4px 12px rgb(0 0 0 / 0.12);
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-x-3 min-w-0">
+        <div class="app-logo-wrap" aria-hidden="true">
+          <img src="logo-header.png" alt="" class="app-logo" width="48" height="48">
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-display text-2xl sm:text-3xl tracking-tighter truncate">JL SubNexus</h1>
+          <p class="text-zinc-500 text-sm -mt-1 truncate">Payment &amp; Subscription Nexus</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-x-2">
+        <div class="relative">
+          <button id="settings-btn" onclick="toggleSettings(event)"
+                  class="flex items-center justify-center w-10 h-10 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors"
+                  aria-label="Settings" aria-expanded="false" aria-haspopup="true">
+            <i class="fa-solid fa-gear text-sm"></i>
+          </button>
+          <div id="settings-menu"
+               class="hidden absolute right-0 top-full mt-2 w-72 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-40 overflow-hidden">
+            <div class="px-4 py-3 border-b border-zinc-800">
+              <div class="text-sm font-medium">Settings</div>
+              <div class="text-xs text-zinc-500 mt-0.5">App preferences</div>
+            </div>
+            <div class="px-4 py-3 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-sm font-medium flex items-center gap-x-2">
+                  <i id="theme-mode-icon" class="fa-solid fa-moon text-xs text-zinc-400"></i>
+                  <span>Appearance</span>
+                </div>
+                <div id="theme-mode-label" class="text-xs text-zinc-500 mt-0.5">Dark mode</div>
+              </div>
+              <label class="theme-switch" title="Toggle light/dark theme">
+                <input type="checkbox" id="theme-toggle" aria-label="Use light theme">
+                <span class="theme-switch-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <button onclick="exportData()" 
+                class="flex items-center gap-x-2 px-4 py-2 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">
+          <i class="fa-solid fa-download text-xs"></i>
+          <span class="hidden sm:inline">Export</span>
+        </button>
+        <button onclick="importData()" 
+                class="flex items-center gap-x-2 px-4 py-2 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">
+          <i class="fa-solid fa-upload text-xs"></i>
+          <span class="hidden sm:inline">Import</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Paycheck Budget -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-2">
+            <i class="fa-solid fa-money-check-dollar"></i>
+            <span>Paycheck Budget</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <div class="absolute left-4 top-3.5 text-zinc-500 text-sm">$</div>
+              <input id="paycheck-input"
+                     type="number"
+                     step="0.01"
+                     min="0"
+                     placeholder="Enter last paycheck amount"
+                     class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 placeholder:text-zinc-600 text-sm rounded-2xl pl-7 pr-4 py-3 outline-none money">
+            </div>
+            <div class="sm:w-52">
+              <label for="pay-schedule-select" class="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1.5">Pay schedule</label>
+              <select id="pay-schedule-select"
+                      class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+                <option value="semi-monthly" selected>1st &amp; 15th (semi-monthly)</option>
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Biweekly</option>
+                <option value="monthly">Monthly (1st)</option>
+              </select>
+            </div>
+          </div>
+          <p class="text-[10px] text-zinc-500 mt-2">Uses your real pay dates to calculate what's committed from this check and what's projected for the next one.</p>
+        </div>
+      </div>
+
+      <div id="paycheck-summary" class="hidden mt-5 pt-5 border-t border-zinc-800">
+        <div id="paycheck-period-info" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-400 mb-4"></div>
+
+        <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-2">Current paycheck</div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+            <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">This Check</div>
+            <div id="paycheck-amount-display" class="text-2xl font-semibold tracking-tighter money">$0.00</div>
+            <div id="paycheck-date-detail" class="text-[10px] text-zinc-500 mt-0.5">last pay date</div>
+          </div>
+          <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+            <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Committed</div>
+            <div id="paycheck-committed" class="text-2xl font-semibold tracking-tighter money text-orange-400">$0.00</div>
+            <div id="paycheck-committed-detail" class="text-[10px] text-zinc-500 mt-0.5">due this period</div>
+          </div>
+          <div class="bg-zinc-950 border border-violet-800/50 rounded-2xl p-4 bg-violet-900/30">
+            <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Left to Spend</div>
+            <div id="paycheck-left" class="text-2xl font-semibold tracking-tighter money text-violet-400">$0.00</div>
+            <div id="paycheck-left-detail" class="text-[10px] text-zinc-500 mt-0.5">after bills &amp; subs</div>
+          </div>
+          <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+            <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Daily Budget</div>
+            <div id="paycheck-daily" class="text-2xl font-semibold tracking-tighter money">$0.00</div>
+            <div id="paycheck-daily-detail" class="text-[10px] text-zinc-500 mt-0.5">per day until next pay</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex justify-between text-[10px] text-zinc-500 mb-1.5">
+            <span id="paycheck-bar-label">0% of check committed</span>
+            <span id="paycheck-bar-remaining" class="text-zinc-400"></span>
+          </div>
+          <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+            <div id="paycheck-bar-fill" class="h-full bg-violet-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-zinc-800">
+          <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-2">Next paycheck preview</div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Next Pay Date</div>
+              <div id="paycheck-next-date" class="text-xl font-semibold tracking-tight">—</div>
+              <div id="paycheck-next-date-detail" class="text-[10px] text-zinc-500 mt-0.5">upcoming check</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Projected Due</div>
+              <div id="paycheck-next-committed" class="text-xl font-semibold tracking-tighter money text-orange-400">$0.00</div>
+              <div id="paycheck-next-committed-detail" class="text-[10px] text-zinc-500 mt-0.5">that pay period</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Projected Left</div>
+              <div id="paycheck-next-left" class="text-xl font-semibold tracking-tighter money text-violet-400">$0.00</div>
+              <div id="paycheck-next-left-detail" class="text-[10px] text-zinc-500 mt-0.5">if same check size</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Projected Daily</div>
+              <div id="paycheck-next-daily" class="text-xl font-semibold tracking-tighter money">$0.00</div>
+              <div id="paycheck-next-daily-detail" class="text-[10px] text-zinc-500 mt-0.5">per day that period</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="paycheck-empty" class="mt-4 text-sm text-zinc-500">
+        Enter your last paycheck to see what's left after upcoming payments.
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-fire"></i>
+          <span>Monthly Burn Rate</span>
+        </div>
+        <div id="monthly-total" class="text-4xl font-semibold tracking-tighter money">$0.00</div>
+        <div class="text-[10px] text-zinc-500 mt-0.5">effective, prorated recurring</div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-clock"></i>
+          <span>Due in Next 30 Days</span>
+        </div>
+        <div id="upcoming-total" class="text-4xl font-semibold tracking-tighter money">$0.00</div>
+        <div class="text-[10px] text-zinc-500 mt-0.5">actual amounts coming due</div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center gap-x-2 text-zinc-400 text-sm mb-1">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Active Items</span>
+        </div>
+        <div id="item-count" class="text-4xl font-semibold tracking-tighter stat-number">0</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-3">
+      <div class="flex-1 relative">
+        <input id="search-input" 
+               type="text" 
+               placeholder="Search..." 
+               onkeyup="filterItems()"
+               class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 placeholder:text-zinc-600 text-sm rounded-2xl pl-10 py-3 outline-none">
+        <i class="fa-solid fa-search absolute left-4 top-4 text-zinc-600"></i>
+      </div>
+      <button onclick="showAddModal()"
+              class="flex items-center justify-center gap-x-2 bg-white hover:bg-zinc-200 transition-colors text-zinc-950 font-medium px-6 rounded-2xl text-sm whitespace-nowrap">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Payment</span>
+      </button>
+    </div>
+
+    <!-- Type Filters -->
+    <div class="flex items-center gap-x-2 mb-4">
+      <button onclick="setFilter('all')" id="filter-all"
+              class="px-4 py-1.5 text-sm rounded-2xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 transition-colors active-filter">All</button>
+      <button onclick="setFilter('subscription')" id="filter-subscription"
+              class="px-4 py-1.5 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors flex items-center gap-x-1.5">
+        <span>Subscriptions</span>
+        <span id="count-sub" class="text-xs px-1.5 py-px rounded-xl bg-zinc-800 text-zinc-400"></span>
+      </button>
+      <button onclick="setFilter('bill')" id="filter-bill"
+              class="px-4 py-1.5 text-sm rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors flex items-center gap-x-1.5">
+        <span>Bills</span>
+        <span id="count-bill" class="text-xs px-1.5 py-px rounded-xl bg-zinc-800 text-zinc-400"></span>
+      </button>
+    </div>
+
+    <!-- Subscriptions Table -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px]">
+          <thead>
+            <tr class="border-b border-zinc-800 text-xs text-zinc-500">
+              <th class="text-left font-normal px-6 py-4">Item</th>
+              <th class="text-right font-normal px-6 py-4 w-28">Amount</th>
+              <th class="text-left font-normal px-6 py-4 w-40">Next Due</th>
+              <th class="text-left font-normal px-6 py-4">Notes</th>
+              <th class="w-12"></th>
+            </tr>
+          </thead>
+          <tbody id="subs-body" class="text-sm divide-y divide-zinc-800">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden px-6 py-16 text-center">
+        <div class="mx-auto w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-wallet text-xl text-zinc-600"></i>
+        </div>
+        <p class="font-medium text-zinc-300">No payments yet</p>
+        <p class="text-sm text-zinc-500 mt-1">Click "Add Payment" to get started</p>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-4 px-1 text-xs text-zinc-500">
+      <div>
+        Data is stored in your browser only.
+      </div>
+      <button onclick="clearAllData()" 
+              class="hover:text-red-400 transition-colors flex items-center gap-x-1.5">
+        <i class="fa-solid fa-trash text-xs"></i>
+        <span>Clear all data</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="modal" onclick="if (event.target.id === 'modal') hideModal()" 
+       class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div onclick="event.stopImmediatePropagation()" 
+         class="modal bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-md shadow-2xl">
+      
+      <div class="px-6 pt-6 pb-4">
+        <div class="flex items-center justify-between mb-5">
+          <h2 id="modal-title" class="text-xl font-semibold tracking-tight">Add Subscription</h2>
+          <button onclick="hideModal()" class="text-zinc-500 hover:text-zinc-300 w-8 h-8 flex items-center justify-center">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Service Name -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">SERVICE NAME</label>
+            <input id="input-name" type="text" placeholder="Netflix, Spotify, etc."
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+
+          <!-- Monthly Cost -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">AMOUNT</label>
+            <div class="relative">
+              <div class="absolute left-4 top-3.5 text-zinc-500">$</div>
+              <input id="input-cost" type="number" step="0.01" placeholder="0.00"
+                     class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl pl-7 pr-4 py-3 text-sm outline-none money">
+            </div>
+          </div>
+
+          <!-- Type + Frequency (new) -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">TYPE</label>
+              <select id="input-type" class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-[13px] text-sm outline-none">
+                <option value="subscription">Subscription</option>
+                <option value="bill">Bill</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">FREQUENCY</label>
+              <select id="input-frequency" class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-[13px] text-sm outline-none">
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly (every 3 mo)</option>
+                <option value="semi-annually">Semi-annually (every 6 mo)</option>
+                <option value="yearly">Yearly</option>
+                <option value="one-time">One-time</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Next Due -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">NEXT DUE DATE</label>
+            <input id="input-date" type="date"
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-400 mb-1.5">NOTES <span class="text-zinc-600">(optional)</span></label>
+            <input id="input-notes" type="text" placeholder="Premium plan, family sharing..."
+                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm outline-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-zinc-800 px-6 py-4 flex gap-3">
+        <button onclick="hideModal()" 
+                class="flex-1 py-3 rounded-2xl border border-zinc-800 hover:bg-zinc-950 text-sm font-medium transition-colors">
+          Cancel
+        </button>
+        <button id="save-button"
+                class="flex-1 py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-sm transition-colors">
+          Add Subscription
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-800 border border-zinc-700 text-sm px-5 py-3 rounded-2xl shadow-xl flex items-center gap-x-2">
+    <span id="toast-message"></span>
+  </div>
+
+  <script>
+    // Tailwind script configuration
+    function initTailwind() {
+      document.documentElement.style.setProperty('--accent', '#3b82f6');
+    }
+
+    let items = [];
+    let editingId = null;
+    let currentFilter = '';
+
+    const STORAGE_KEY = 'subs-tracker-v1';
+    const THEME_KEY = 'subs-tracker-theme';
+    const PAYCHECK_KEY = 'subs-tracker-paycheck';
+    const PAY_SCHEDULE_KEY = 'subs-tracker-pay-schedule';
+    const BACKUP_VERSION = 1;
+
+    let paycheckAmount = null;
+    let paySchedule = 'semi-monthly';
+
+    function getTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
+
+    function updateThemeUi(theme) {
+      const toggle = document.getElementById('theme-toggle');
+      const label = document.getElementById('theme-mode-label');
+      const icon = document.getElementById('theme-mode-icon');
+      if (toggle) toggle.checked = theme === 'light';
+      if (label) label.textContent = theme === 'light' ? 'Light mode' : 'Dark mode';
+      if (icon) {
+        icon.className = theme === 'light'
+          ? 'fa-solid fa-sun text-xs text-amber-400'
+          : 'fa-solid fa-moon text-xs text-zinc-400';
+      }
+    }
+
+    function setTheme(theme) {
+      const nextTheme = theme === 'light' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem(THEME_KEY, nextTheme);
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = nextTheme === 'light' ? '#fafafa' : '#09090b';
+
+      updateThemeUi(nextTheme);
+    }
+
+    function toggleSettings(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('settings-menu');
+      const button = document.getElementById('settings-btn');
+      if (!menu || !button) return;
+
+      const isHidden = menu.classList.toggle('hidden');
+      button.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+    }
+
+    function initTheme() {
+      updateThemeUi(getTheme());
+
+      const toggle = document.getElementById('theme-toggle');
+      if (toggle) {
+        toggle.addEventListener('change', () => {
+          setTheme(toggle.checked ? 'light' : 'dark');
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        const menu = document.getElementById('settings-menu');
+        const button = document.getElementById('settings-btn');
+        if (!menu || menu.classList.contains('hidden')) return;
+        if (menu.contains(event.target) || button.contains(event.target)) return;
+        menu.classList.add('hidden');
+        button.setAttribute('aria-expanded', 'false');
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const menu = document.getElementById('settings-menu');
+        const button = document.getElementById('settings-btn');
+        if (!menu || menu.classList.contains('hidden')) return;
+        menu.classList.add('hidden');
+        if (button) button.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    function toLocalDateStr(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function daysFromNow(days) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + days);
+      return toLocalDateStr(date);
+    }
+
+    function createSeedData() {
+      return [
+        {
+          id: 'ex1',
+          name: 'Netflix',
+          cost: 15.49,
+          nextRenewal: daysFromNow(3),
+          notes: 'Premium plan',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex2',
+          name: 'Spotify',
+          cost: 10.99,
+          nextRenewal: daysFromNow(7),
+          notes: 'Family',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex3',
+          name: 'YouTube Premium',
+          cost: 13.99,
+          nextRenewal: daysFromNow(12),
+          notes: '',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex4',
+          name: 'GitHub Pro',
+          cost: 4.00,
+          nextRenewal: daysFromNow(18),
+          notes: 'Annual discount applied',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex5',
+          name: 'Adobe Creative Cloud',
+          cost: 719.88,
+          nextRenewal: daysFromNow(45),
+          notes: 'Student discount',
+          type: 'subscription',
+          frequency: 'yearly'
+        },
+        {
+          id: 'ex6',
+          name: 'Electric Bill',
+          cost: 142.00,
+          nextRenewal: daysFromNow(9),
+          notes: 'Average monthly',
+          type: 'bill',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex7',
+          name: 'Car Insurance',
+          cost: 1248.00,
+          nextRenewal: daysFromNow(22),
+          notes: 'Full coverage - 6 month policy',
+          type: 'bill',
+          frequency: 'semi-annually'
+        }
+      ];
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        items = JSON.parse(saved);
+      } else {
+        items = createSeedData();
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toast-message');
+      msg.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      
+      setTimeout(() => {
+        toast.classList.remove('flex');
+        toast.classList.add('hidden');
+      }, 2200);
+    }
+
+    function formatCurrency(amount) {
+      return amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }
+
+    function getDaysUntil(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const renewal = new Date(dateStr + 'T00:00:00');
+      const diffTime = renewal - today;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getStatus(dateStr) {
+      const days = getDaysUntil(dateStr);
+      if (days < 0) return { label: 'Overdue', color: 'bg-red-500', text: 'text-red-400' };
+      if (days === 0) return { label: 'Today', color: 'bg-orange-500', text: 'text-orange-400' };
+      if (days <= 7) return { label: `${days}d`, color: 'bg-orange-500', text: 'text-orange-400' };
+      return { label: `${days}d`, color: 'bg-emerald-500', text: 'text-emerald-400' };
+    }
+
+    function getFrequencyMonths(freq) {
+      if (freq === 'monthly') return 1;
+      if (freq === 'quarterly') return 3;
+      if (freq === 'semi-annually') return 6;
+      if (freq === 'yearly') return 12;
+      return 0; // one-time
+    }
+
+    function getMonthlyEquivalent(item) {
+      const months = getFrequencyMonths(item.frequency);
+      if (months === 0) return 0;
+      return item.cost / months;
+    }
+
+    function getUpcomingTotal(days = 30) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const cutoff = new Date(today);
+      cutoff.setDate(cutoff.getDate() + days);
+
+      return items
+        .filter(item => {
+          const d = new Date(item.nextRenewal + 'T00:00:00');
+          return d >= today && d <= cutoff;
+        })
+        .reduce((sum, item) => sum + item.cost, 0);
+    }
+
+    function startOfDay(date) {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function parseItemDate(dateStr) {
+      return startOfDay(new Date(dateStr + 'T00:00:00'));
+    }
+
+    function daysBetween(start, end) {
+      return Math.max(0, Math.round((startOfDay(end) - startOfDay(start)) / (1000 * 60 * 60 * 24)));
+    }
+
+    function payDate(year, month, day) {
+      return startOfDay(new Date(year, month, day));
+    }
+
+    function getFollowingSemiMonthlyPayday(payday) {
+      const y = payday.getFullYear();
+      const m = payday.getMonth();
+      if (payday.getDate() === 1) return payDate(y, m, 15);
+      return m === 11 ? payDate(y + 1, 0, 1) : payDate(y, m + 1, 1);
+    }
+
+    function getSemiMonthlyPeriod(today = new Date()) {
+      today = startOfDay(today);
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      const d = today.getDate();
+
+      let lastPayday;
+      let nextPayday;
+
+      if (d >= 15) {
+        lastPayday = payDate(y, m, 15);
+        nextPayday = m === 11 ? payDate(y + 1, 0, 1) : payDate(y, m + 1, 1);
+      } else {
+        lastPayday = payDate(y, m, 1);
+        nextPayday = payDate(y, m, 15);
+      }
+
+      const periodEnd = new Date(nextPayday);
+      periodEnd.setDate(periodEnd.getDate() - 1);
+
+      return {
+        lastPayday,
+        nextPayday,
+        periodEnd,
+        daysUntilNext: Math.max(1, daysBetween(today, nextPayday)),
+        periodDays: Math.max(1, daysBetween(lastPayday, nextPayday))
+      };
+    }
+
+    function getFixedDayPeriod(days, today = new Date()) {
+      today = startOfDay(today);
+      const nextPayday = new Date(today);
+      nextPayday.setDate(nextPayday.getDate() + days);
+
+      return {
+        lastPayday: today,
+        nextPayday,
+        periodEnd: new Date(nextPayday.getTime() - 86400000),
+        daysUntilNext: days,
+        periodDays: days
+      };
+    }
+
+    function getMonthlyFirstPeriod(today = new Date()) {
+      today = startOfDay(today);
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      const lastPayday = payDate(y, m, 1);
+      const nextPayday = m === 11 ? payDate(y + 1, 0, 1) : payDate(y, m + 1, 1);
+      const periodEnd = new Date(nextPayday);
+      periodEnd.setDate(periodEnd.getDate() - 1);
+
+      return {
+        lastPayday,
+        nextPayday,
+        periodEnd,
+        daysUntilNext: Math.max(1, daysBetween(today, nextPayday)),
+        periodDays: Math.max(1, daysBetween(lastPayday, nextPayday))
+      };
+    }
+
+    function getPayPeriodInfo(schedule = paySchedule, today = new Date()) {
+      if (schedule === 'semi-monthly') return getSemiMonthlyPeriod(today);
+      if (schedule === 'weekly') return getFixedDayPeriod(7, today);
+      if (schedule === 'biweekly') return getFixedDayPeriod(14, today);
+      if (schedule === 'monthly') return getMonthlyFirstPeriod(today);
+      return getSemiMonthlyPeriod(today);
+    }
+
+    function getNextPayPeriodInfo(schedule = paySchedule, today = new Date()) {
+      const current = getPayPeriodInfo(schedule, today);
+      const nextPeriodStart = current.nextPayday;
+      let nextPeriodEnd;
+
+      if (schedule === 'semi-monthly') {
+        nextPeriodEnd = getFollowingSemiMonthlyPayday(nextPeriodStart);
+      } else if (schedule === 'monthly') {
+        const y = nextPeriodStart.getFullYear();
+        const m = nextPeriodStart.getMonth();
+        nextPeriodEnd = m === 11 ? payDate(y + 1, 0, 1) : payDate(y, m + 1, 1);
+      } else {
+        const span = schedule === 'weekly' ? 7 : 14;
+        nextPeriodEnd = new Date(nextPeriodStart);
+        nextPeriodEnd.setDate(nextPeriodEnd.getDate() + span);
+      }
+
+      return {
+        lastPayday: nextPeriodStart,
+        nextPayday: nextPeriodEnd,
+        periodEnd: new Date(nextPeriodEnd.getTime() - 86400000),
+        daysUntilNext: Math.max(1, daysBetween(nextPeriodStart, nextPeriodEnd)),
+        periodDays: Math.max(1, daysBetween(nextPeriodStart, nextPeriodEnd))
+      };
+    }
+
+    function getOwedBeforeDate(cutoffDate, today = new Date()) {
+      today = startOfDay(today);
+      const cutoff = startOfDay(cutoffDate);
+
+      let overdue = 0;
+      let upcoming = 0;
+      let count = 0;
+
+      items.forEach(item => {
+        const d = parseItemDate(item.nextRenewal);
+        if (d >= cutoff) return;
+        count++;
+        if (d < today) overdue += item.cost;
+        else upcoming += item.cost;
+      });
+
+      return { overdue, upcoming, total: overdue + upcoming, count };
+    }
+
+    function getOwedBetweenDates(startDate, endDate) {
+      const start = startOfDay(startDate);
+      const end = startOfDay(endDate);
+
+      let total = 0;
+      let count = 0;
+
+      items.forEach(item => {
+        const d = parseItemDate(item.nextRenewal);
+        if (d >= start && d < end) {
+          total += item.cost;
+          count++;
+        }
+      });
+
+      return { total, count };
+    }
+
+    function formatPayDate(date) {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }
+
+    function loadPaycheck() {
+      const saved = localStorage.getItem(PAYCHECK_KEY);
+      if (saved !== null && saved !== '') {
+        const parsed = parseFloat(saved);
+        if (!isNaN(parsed) && parsed >= 0) paycheckAmount = parsed;
+      }
+
+      const savedSchedule = localStorage.getItem(PAY_SCHEDULE_KEY);
+      if (savedSchedule && ['semi-monthly', 'weekly', 'biweekly', 'monthly'].includes(savedSchedule)) {
+        paySchedule = savedSchedule;
+      } else {
+        const legacyPeriod = localStorage.getItem('subs-tracker-pay-period');
+        if (legacyPeriod === '7') paySchedule = 'weekly';
+        else if (legacyPeriod === '30') paySchedule = 'monthly';
+        else if (legacyPeriod === '14') paySchedule = 'biweekly';
+      }
+    }
+
+    function savePaycheck() {
+      if (paycheckAmount === null) {
+        localStorage.removeItem(PAYCHECK_KEY);
+      } else {
+        localStorage.setItem(PAYCHECK_KEY, String(paycheckAmount));
+      }
+      localStorage.setItem(PAY_SCHEDULE_KEY, paySchedule);
+    }
+
+    function setPaycheckAmount(value) {
+      if (value === '' || value === null || isNaN(value)) {
+        paycheckAmount = null;
+      } else {
+        paycheckAmount = Math.max(0, parseFloat(value));
+      }
+      savePaycheck();
+      updatePaycheckBudget();
+    }
+
+    function setPaySchedule(schedule) {
+      if (!['semi-monthly', 'weekly', 'biweekly', 'monthly'].includes(schedule)) return;
+      paySchedule = schedule;
+      savePaycheck();
+      updatePaycheckBudget();
+    }
+
+    function setMoneyTone(el, value, sizeClass, goodClass, warnThreshold) {
+      const abs = Math.abs(value);
+      el.textContent = (value < 0 ? '-' : '') + '$' + formatCurrency(abs);
+      let tone = goodClass;
+      if (value < 0) tone = 'text-red-400';
+      else if (warnThreshold > Number.NEGATIVE_INFINITY && value < warnThreshold) tone = 'text-orange-400';
+      el.className = `${sizeClass} font-semibold tracking-tighter money ${tone}`.trim();
+    }
+
+    function updatePaycheckBudget() {
+      const summary = document.getElementById('paycheck-summary');
+      const empty = document.getElementById('paycheck-empty');
+      const input = document.getElementById('paycheck-input');
+      const scheduleSelect = document.getElementById('pay-schedule-select');
+
+      if (input && document.activeElement !== input && paycheckAmount !== null) {
+        input.value = paycheckAmount;
+      }
+      if (scheduleSelect) scheduleSelect.value = paySchedule;
+
+      if (paycheckAmount === null || paycheckAmount <= 0) {
+        summary.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      summary.classList.remove('hidden');
+      empty.classList.add('hidden');
+
+      const today = startOfDay(new Date());
+      const current = getPayPeriodInfo(paySchedule, today);
+      const next = getNextPayPeriodInfo(paySchedule, today);
+
+      const currentBreakdown = getOwedBeforeDate(current.nextPayday, today);
+      const nextBreakdown = getOwedBetweenDates(next.lastPayday, next.nextPayday);
+
+      const committed = currentBreakdown.total;
+      const left = paycheckAmount - committed;
+      const daily = left / current.daysUntilNext;
+      const pctCommitted = paycheckAmount > 0 ? Math.min(100, (committed / paycheckAmount) * 100) : 0;
+      const pctLeft = Math.max(0, 100 - pctCommitted);
+
+      const nextCommitted = nextBreakdown.total;
+      const nextLeft = paycheckAmount - nextCommitted;
+      const nextDaily = nextLeft / next.daysUntilNext;
+
+      const scheduleLabel = {
+        'semi-monthly': '1st & 15th',
+        'weekly': 'weekly',
+        'biweekly': 'biweekly',
+        'monthly': 'monthly (1st)'
+      }[paySchedule];
+
+      document.getElementById('paycheck-period-info').innerHTML =
+        `<i class="fa-solid fa-calendar-days text-zinc-500"></i>` +
+        `<span><strong class="text-zinc-300">${scheduleLabel}</strong> schedule · ` +
+        `covers <strong class="text-zinc-300">${formatPayDate(current.lastPayday)}</strong> through ` +
+        `<strong class="text-zinc-300">${formatPayDate(current.periodEnd)}</strong></span>` +
+        `<span class="text-zinc-600">·</span>` +
+        `<span>Next pay <strong class="text-zinc-300">${formatPayDate(current.nextPayday)}</strong> ` +
+        `(${current.daysUntilNext} day${current.daysUntilNext === 1 ? '' : 's'})</span>`;
+
+      document.getElementById('paycheck-amount-display').textContent = '$' + formatCurrency(paycheckAmount);
+      document.getElementById('paycheck-date-detail').textContent =
+        `paid ${formatPayDate(current.lastPayday)}`;
+
+      document.getElementById('paycheck-committed').textContent = '$' + formatCurrency(committed);
+
+      const committedDetail = document.getElementById('paycheck-committed-detail');
+      if (currentBreakdown.overdue > 0) {
+        committedDetail.textContent =
+          `${currentBreakdown.count} due by ${formatPayDate(current.periodEnd)} · $${formatCurrency(currentBreakdown.overdue)} overdue`;
+      } else {
+        committedDetail.textContent =
+          `${currentBreakdown.count} due by ${formatPayDate(current.periodEnd)}`;
+      }
+
+      setMoneyTone(
+        document.getElementById('paycheck-left'),
+        left,
+        'text-2xl',
+        'text-violet-400',
+        paycheckAmount * 0.1
+      );
+
+      const leftDetail = document.getElementById('paycheck-left-detail');
+      leftDetail.textContent = left < 0
+        ? `$${formatCurrency(Math.abs(left))} over budget`
+        : `${pctLeft.toFixed(0)}% of check uncommitted`;
+
+      setMoneyTone(
+        document.getElementById('paycheck-daily'),
+        daily,
+        'text-2xl',
+        '',
+        -Infinity
+      );
+      document.getElementById('paycheck-daily-detail').textContent =
+        `for ${current.daysUntilNext} day${current.daysUntilNext === 1 ? '' : 's'} until next pay`;
+
+      document.getElementById('paycheck-bar-label').textContent =
+        `${pctCommitted.toFixed(0)}% of this check committed`;
+      document.getElementById('paycheck-bar-remaining').textContent =
+        left >= 0 ? `$${formatCurrency(left)} free` : `$${formatCurrency(Math.abs(left))} short`;
+
+      const barFill = document.getElementById('paycheck-bar-fill');
+      barFill.style.width = `${pctCommitted}%`;
+      barFill.className = 'h-full rounded-full transition-all duration-300 ' +
+        (pctCommitted > 100 ? 'bg-red-500' : pctCommitted > 85 ? 'bg-orange-500' : 'bg-violet-500');
+
+      document.getElementById('paycheck-next-date').textContent = formatPayDate(next.lastPayday);
+      document.getElementById('paycheck-next-date-detail').textContent =
+        `covers through ${formatPayDate(next.periodEnd)}`;
+
+      document.getElementById('paycheck-next-committed').textContent = '$' + formatCurrency(nextCommitted);
+      document.getElementById('paycheck-next-committed-detail').textContent =
+        `${nextBreakdown.count} due that period`;
+
+      setMoneyTone(
+        document.getElementById('paycheck-next-left'),
+        nextLeft,
+        'text-xl',
+        'text-violet-400',
+        paycheckAmount * 0.1
+      );
+      document.getElementById('paycheck-next-left-detail').textContent =
+        nextLeft < 0
+          ? `$${formatCurrency(Math.abs(nextLeft))} projected short`
+          : 'assuming same paycheck';
+
+      setMoneyTone(
+        document.getElementById('paycheck-next-daily'),
+        nextDaily,
+        'text-xl',
+        '',
+        -Infinity
+      );
+      document.getElementById('paycheck-next-daily-detail').textContent =
+        `over ${next.periodDays} day${next.periodDays === 1 ? '' : 's'}`;
+    }
+
+    function initPaycheck() {
+      loadPaycheck();
+
+      const input = document.getElementById('paycheck-input');
+      const scheduleSelect = document.getElementById('pay-schedule-select');
+
+      if (input) {
+        if (paycheckAmount !== null) input.value = paycheckAmount;
+
+        input.addEventListener('change', () => setPaycheckAmount(input.value));
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            input.blur();
+            setPaycheckAmount(input.value);
+          }
+        });
+        input.addEventListener('blur', () => setPaycheckAmount(input.value));
+      }
+
+      if (scheduleSelect) {
+        scheduleSelect.value = paySchedule;
+        scheduleSelect.addEventListener('change', () => {
+          setPaySchedule(scheduleSelect.value);
+        });
+      }
+
+      updatePaycheckBudget();
+    }
+
+    function updateStats() {
+      // Effective monthly burn rate (prorated recurring only)
+      const monthlyBurn = items.reduce((sum, item) => sum + getMonthlyEquivalent(item), 0);
+      
+      // Actual cash due in next 30 days
+      const upcoming = getUpcomingTotal(30);
+      
+      document.getElementById('monthly-total').textContent = '$' + formatCurrency(monthlyBurn);
+      document.getElementById('upcoming-total').textContent = '$' + formatCurrency(upcoming);
+      document.getElementById('item-count').textContent = items.length;
+      
+      // Update filter counts
+      const subCount = items.filter(i => (i.type || 'subscription') === 'subscription').length;
+      const billCount = items.filter(i => i.type === 'bill').length;
+      const countSubEl = document.getElementById('count-sub');
+      const countBillEl = document.getElementById('count-bill');
+      if (countSubEl) countSubEl.textContent = subCount;
+      if (countBillEl) countBillEl.textContent = billCount;
+
+      updatePaycheckBudget();
+    }
+
+    // Current active filter for type
+    let currentTypeFilter = 'all';
+
+    function setFilter(type) {
+      currentTypeFilter = type;
+      
+      // Update button styles
+      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+        btn.classList.remove('bg-zinc-800', 'border-zinc-600', 'active-filter');
+        btn.classList.add('border-zinc-800');
+      });
+      
+      const activeBtn = document.getElementById(`filter-${type}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-zinc-800', 'border-zinc-600');
+        activeBtn.classList.remove('border-zinc-800');
+      } else {
+        // 'all' button
+        const allBtn = document.getElementById('filter-all');
+        if (allBtn) allBtn.classList.add('bg-zinc-800', 'border-zinc-600');
+      }
+      
+      renderItems();
+    }
+
+    function renderItems(filteredItems = null) {
+      const tbody = document.getElementById('subs-body');
+      const empty = document.getElementById('empty-state');
+      
+      let toRender = filteredItems || items;
+      
+      // Apply type filter
+      if (currentTypeFilter !== 'all') {
+        toRender = toRender.filter(i => (i.type || 'subscription') === currentTypeFilter);
+      }
+      
+      if (toRender.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      
+      empty.classList.add('hidden');
+      
+      // Sort by renewal date ascending
+      const sorted = [...toRender].sort((a, b) =>
+        new Date(a.nextRenewal + 'T00:00:00') - new Date(b.nextRenewal + 'T00:00:00')
+      );
+
+      tbody.innerHTML = sorted.map(item => {
+        const status = getStatus(item.nextRenewal);
+        const type = item.type || 'subscription';
+        const freq = item.frequency || 'monthly';
+        
+        const freqLabel = {
+          'monthly': 'mo',
+          'quarterly': 'qtr',
+          'semi-annually': '6mo',
+          'yearly': 'yr',
+          'one-time': 'once'
+        }[freq] || '';
+        
+        const typeBadge = type === 'bill' 
+          ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-400">Bill</span>`
+          : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400">Sub</span>`;
+        
+        return `
+          <tr class="sub-row group">
+            <td class="px-6 py-4">
+              <div>
+                <div class="font-medium flex items-center gap-x-2">
+                  ${escapeHtml(item.name)}
+                  ${typeBadge}
+                </div>
+                <div class="text-[10px] text-zinc-500 mt-0.5">${freqLabel}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="font-medium money">$${formatCurrency(item.cost)}</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-x-2">
+                <div>
+                  <div class="font-medium renewal-date">${formatDate(item.nextRenewal)}</div>
+                  <div class="text-[10px] ${status.text} flex items-center gap-x-1">
+                    <span class="status-dot ${status.color} inline-block"></span>
+                    <span>${status.label}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-zinc-400 text-sm max-w-[180px]">
+              <div class="truncate">${escapeHtml(item.notes || '')}</div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="row-actions flex items-center gap-x-1 transition-opacity">
+                <button onclick="markAsPaid('${item.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 transition-colors"
+                        title="Mark as paid &amp; advance by frequency">
+                  <i class="fa-solid fa-check text-xs"></i>
+                </button>
+                <button onclick="editItem('${item.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors">
+                  <i class="fa-solid fa-edit text-xs"></i>
+                </button>
+                <button onclick="deleteItem('${item.id}')" 
+                        class="px-2.5 py-1 text-xs rounded-xl bg-zinc-800 hover:bg-red-900/60 hover:text-red-400 transition-colors">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function filterItems() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      currentFilter = query;
+      
+      let filtered = items;
+      
+      if (query) {
+        filtered = items.filter(i =>
+          i.name.toLowerCase().includes(query) ||
+          (i.notes && i.notes.toLowerCase().includes(query))
+        );
+      }
+      
+      renderItems(filtered);
+    }
+
+    function showAddModal() {
+      editingId = null;
+      document.getElementById('modal-title').textContent = 'Add Payment';
+      document.getElementById('save-button').textContent = 'Add Payment';
+      
+      // Clear inputs
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-cost').value = '';
+      document.getElementById('input-date').value = '';
+      document.getElementById('input-notes').value = '';
+      document.getElementById('input-type').value = 'subscription';
+      document.getElementById('input-frequency').value = 'monthly';
+      
+      document.getElementById('input-date').value = daysFromNow(30);
+      
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('input-name').focus();
+    }
+
+    function editItem(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+      
+      editingId = id;
+      document.getElementById('modal-title').textContent = 'Edit Payment';
+      document.getElementById('save-button').textContent = 'Save Changes';
+      
+      document.getElementById('input-name').value = item.name;
+      document.getElementById('input-cost').value = item.cost;
+      document.getElementById('input-date').value = item.nextRenewal;
+      document.getElementById('input-notes').value = item.notes || '';
+      document.getElementById('input-type').value = item.type || 'subscription';
+      document.getElementById('input-frequency').value = item.frequency || 'monthly';
+      
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function hideModal() {
+      document.getElementById('modal').classList.remove('flex');
+      document.getElementById('modal').classList.add('hidden');
+      editingId = null;
+    }
+
+    function saveItem() {
+      const name = document.getElementById('input-name').value.trim();
+      const costStr = document.getElementById('input-cost').value;
+      const date = document.getElementById('input-date').value;
+      const notes = document.getElementById('input-notes').value.trim();
+      const type = document.getElementById('input-type').value;
+      const frequency = document.getElementById('input-frequency').value;
+
+      if (!name || !costStr || !date) {
+        alert('Please fill in name, amount, and due date.');
+        return;
+      }
+
+      const cost = parseFloat(costStr);
+      if (isNaN(cost) || cost < 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+
+      if (editingId) {
+        const item = items.find(i => i.id === editingId);
+        item.name = name;
+        item.cost = cost;
+        item.nextRenewal = date;
+        item.notes = notes;
+        item.type = type;
+        item.frequency = frequency;
+        showToast('Payment updated');
+      } else {
+        items.push({
+          id: 'item_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
+          name,
+          cost,
+          nextRenewal: date,
+          notes,
+          type,
+          frequency
+        });
+        showToast('Payment added');
+      }
+
+      saveData();
+      hideModal();
+      updateStats();
+      renderItems();
+      // re-apply current filter + search
+      applyCurrentFilters();
+    }
+
+    function applyCurrentFilters() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      let filtered = items;
+      
+      if (query) {
+        filtered = filtered.filter(i =>
+          i.name.toLowerCase().includes(query) ||
+          (i.notes && i.notes.toLowerCase().includes(query))
+        );
+      }
+      renderItems(filtered);
+    }
+
+    function advanceDateByFrequency(dateStr, frequency) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const monthsToAdd = getFrequencyMonths(frequency);
+      
+      if (monthsToAdd === 0) {
+        // one-time — we will handle specially in markAsPaid
+        return null;
+      }
+      
+      let newMonth = d.getMonth() + monthsToAdd;
+      let newYear = d.getFullYear();
+      
+      while (newMonth > 11) {
+        newMonth -= 12;
+        newYear++;
+      }
+      
+      let newDay = d.getDate();
+      const lastDay = new Date(newYear, newMonth + 1, 0).getDate();
+      if (newDay > lastDay) newDay = lastDay;
+      
+      return toLocalDateStr(new Date(newYear, newMonth, newDay));
+    }
+
+    function markAsPaid(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+
+      const freq = item.frequency || 'monthly';
+      
+      if (freq === 'one-time') {
+        if (!confirm(`Mark "${item.name}" as paid and remove it?`)) return;
+        items = items.filter(i => i.id !== id);
+        saveData();
+        updateStats();
+        renderItems();
+        applyCurrentFilters();
+        showToast('One-time bill marked paid and removed');
+        return;
+      }
+
+      const newDateStr = advanceDateByFrequency(item.nextRenewal, freq);
+      if (!newDateStr) return;
+
+      item.nextRenewal = newDateStr;
+      
+      saveData();
+      updateStats();
+      renderItems();
+      applyCurrentFilters();
+      
+      const freqLabel = freq === 'monthly' ? '1 month' : 
+                        freq === 'quarterly' ? '3 months' : 
+                        freq === 'semi-annually' ? '6 months' : '1 year';
+      showToast(`${item.name} marked paid — next due in ${freqLabel}`);
+    }
+
+    function deleteItem(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+      
+      if (!confirm(`Delete "${item.name}"?`)) return;
+      
+      items = items.filter(i => i.id !== id);
+      saveData();
+      updateStats();
+      renderItems();
+      applyCurrentFilters();
+      showToast('Item deleted');
+    }
+
+    function buildBackupPayload() {
+      return {
+        version: BACKUP_VERSION,
+        exportedAt: new Date().toISOString(),
+        items,
+        settings: {
+          theme: getTheme(),
+          paycheckAmount,
+          paySchedule
+        }
+      };
+    }
+
+    function parseImportedBackup(raw) {
+      if (Array.isArray(raw)) {
+        return { items: raw, settings: null, legacy: true };
+      }
+
+      if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+        return { items: raw.items, settings: raw.settings || null, legacy: false };
+      }
+
+      throw new Error('Invalid file format');
+    }
+
+    function normalizeImportedItems(importedItems) {
+      const valid = importedItems.every(item =>
+        item.name && typeof item.cost === 'number' && item.nextRenewal
+      );
+
+      if (!valid) {
+        throw new Error('File contains invalid subscription data');
+      }
+
+      return importedItems.map(item => ({
+        id: item.id || ('item_' + Date.now().toString(36) + Math.random().toString(36).substr(2)),
+        name: item.name,
+        cost: item.cost,
+        nextRenewal: item.nextRenewal,
+        notes: item.notes || '',
+        type: item.type || 'subscription',
+        frequency: item.frequency || 'monthly'
+      }));
+    }
+
+    function applyImportedSettings(settings) {
+      if (!settings) return;
+
+      if (settings.theme === 'light' || settings.theme === 'dark') {
+        setTheme(settings.theme);
+      }
+
+      if (settings.paycheckAmount === null || settings.paycheckAmount === undefined || settings.paycheckAmount === '') {
+        paycheckAmount = null;
+      } else {
+        const parsed = parseFloat(settings.paycheckAmount);
+        paycheckAmount = !isNaN(parsed) && parsed >= 0 ? parsed : null;
+      }
+
+      if (settings.paySchedule && ['semi-monthly', 'weekly', 'biweekly', 'monthly'].includes(settings.paySchedule)) {
+        paySchedule = settings.paySchedule;
+      }
+
+      savePaycheck();
+
+      const input = document.getElementById('paycheck-input');
+      const scheduleSelect = document.getElementById('pay-schedule-select');
+      if (input) input.value = paycheckAmount !== null ? paycheckAmount : '';
+      if (scheduleSelect) scheduleSelect.value = paySchedule;
+      updatePaycheckBudget();
+    }
+
+    function exportData() {
+      const backup = buildBackupPayload();
+      const hasItems = backup.items.length > 0;
+      const hasSettings = backup.settings.paycheckAmount !== null;
+
+      if (!hasItems && !hasSettings) {
+        alert('No data to export.');
+        return;
+      }
+
+      const dataStr = JSON.stringify(backup, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `jl-subnexus-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const parts = [];
+      if (hasItems) parts.push(`${backup.items.length} payment${backup.items.length === 1 ? '' : 's'}`);
+      if (hasSettings) parts.push('paycheck budget');
+      parts.push('settings');
+      showToast(`Exported ${parts.join(' + ')}`);
+    }
+
+    function importData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            const { items: importedItems, settings, legacy } = parseImportedBackup(imported);
+            const normalizedItems = normalizeImportedItems(importedItems);
+
+            const settingsNote = legacy
+              ? ' Older backups only restore payments — re-enter paycheck and theme after import.'
+              : settings
+                ? ' Paycheck budget and app settings will be restored too.'
+                : '';
+
+            if (confirm(`Import ${normalizedItems.length} item${normalizedItems.length === 1 ? '' : 's'}? This replaces your current data.${settingsNote}`)) {
+              items = normalizedItems;
+              saveData();
+              applyImportedSettings(settings);
+              updateStats();
+              renderItems();
+              applyCurrentFilters();
+              showToast(legacy
+                ? `Imported ${normalizedItems.length} items`
+                : `Imported ${normalizedItems.length} items + settings`);
+            }
+          } catch (err) {
+            alert('Failed to import: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      input.click();
+    }
+
+    function clearAllData() {
+      if (!confirm('This will permanently delete all payments, paycheck budget, and pay schedule. Theme preference is kept. Continue?')) return;
+      if (!confirm('Last chance — delete everything?')) return;
+
+      items = [];
+      paycheckAmount = null;
+      paySchedule = 'semi-monthly';
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(PAYCHECK_KEY);
+      localStorage.setItem(PAY_SCHEDULE_KEY, paySchedule);
+
+      const paycheckInput = document.getElementById('paycheck-input');
+      const scheduleSelect = document.getElementById('pay-schedule-select');
+      if (paycheckInput) paycheckInput.value = '';
+      if (scheduleSelect) scheduleSelect.value = paySchedule;
+
+      updateStats();
+      renderItems();
+      applyCurrentFilters();
+      showToast('All data cleared');
+    }
+
+    // Attach save button handler
+    function attachModalHandlers() {
+      const saveBtn = document.getElementById('save-button');
+      saveBtn.onclick = saveItem;
+      
+      // Allow Enter key in inputs to save
+      const inputs = ['input-name', 'input-cost', 'input-date', 'input-notes'];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              saveItem();
+            }
+          });
+        }
+      });
+      
+      // Escape to close modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const modal = document.getElementById('modal');
+          if (!modal.classList.contains('hidden')) {
+            hideModal();
+          }
+        }
+      });
+    }
+
+    function init() {
+      initTailwind();
+      initTheme();
+      initPaycheck();
+      loadData();
+      
+      // Migration for old data (add type/frequency if missing)
+      let migrated = false;
+      items.forEach(item => {
+        if (!item.type) { item.type = 'subscription'; migrated = true; }
+        if (!item.frequency) { item.frequency = 'monthly'; migrated = true; }
+      });
+      if (migrated) saveData();
+      
+      updateStats();
+      renderItems();
+      attachModalHandlers();
+      
+      // Make search a bit nicer
+      const search = document.getElementById('search-input');
+      search.addEventListener('input', () => {
+        const query = search.value.toLowerCase().trim();
+        currentFilter = query;
+        applyCurrentFilters();
+      });
+      
+      // Keyboard shortcut: "/" focuses search
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          search.focus();
+        }
+      });
+      
+      // Set initial filter button style
+      const allBtn = document.getElementById('filter-all');
+      if (allBtn) allBtn.classList.add('bg-zinc-800', 'border-zinc-600');
+      
+      // Initial tip
+      if (items.length > 0 && localStorage.getItem('subs-tracker-v1-seen-tip') !== '1') {
+        setTimeout(() => {
+          localStorage.setItem('subs-tracker-v1-seen-tip', '1');
+        }, 4500);
+      }
+    }
+
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    // Boot
+    registerServiceWorker();
+    window.onload = init;
+  </script>
+</body>
+</html>
