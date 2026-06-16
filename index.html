@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Subs">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23ffffff'/%3E%3Cpath d='M128 176h256v48H128zm0 96h256v48H128zm0 96h160v48H128z' fill='%2309090b'/%3E%3C/svg%3E">
   <title>Subs • Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -76,6 +82,21 @@
 
     .stat-number {
       font-variant-numeric: tabular-nums;
+    }
+
+    .row-actions {
+      opacity: 1;
+    }
+
+    @media (min-width: 640px) {
+      .row-actions {
+        opacity: 0;
+      }
+
+      .sub-row:hover .row-actions,
+      .sub-row:focus-within .row-actions {
+        opacity: 1;
+      }
     }
   </style>
 </head>
@@ -307,77 +328,94 @@
 
     const STORAGE_KEY = 'subs-tracker-v1';
 
+    function toLocalDateStr(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function daysFromNow(days) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + days);
+      return toLocalDateStr(date);
+    }
+
+    function createSeedData() {
+      return [
+        {
+          id: 'ex1',
+          name: 'Netflix',
+          cost: 15.49,
+          nextRenewal: daysFromNow(3),
+          notes: 'Premium plan',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex2',
+          name: 'Spotify',
+          cost: 10.99,
+          nextRenewal: daysFromNow(7),
+          notes: 'Family',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex3',
+          name: 'YouTube Premium',
+          cost: 13.99,
+          nextRenewal: daysFromNow(12),
+          notes: '',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex4',
+          name: 'GitHub Pro',
+          cost: 4.00,
+          nextRenewal: daysFromNow(18),
+          notes: 'Annual discount applied',
+          type: 'subscription',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex5',
+          name: 'Adobe Creative Cloud',
+          cost: 719.88,
+          nextRenewal: daysFromNow(45),
+          notes: 'Student discount',
+          type: 'subscription',
+          frequency: 'yearly'
+        },
+        {
+          id: 'ex6',
+          name: 'Electric Bill',
+          cost: 142.00,
+          nextRenewal: daysFromNow(9),
+          notes: 'Average monthly',
+          type: 'bill',
+          frequency: 'monthly'
+        },
+        {
+          id: 'ex7',
+          name: 'Car Insurance',
+          cost: 1248.00,
+          nextRenewal: daysFromNow(22),
+          notes: 'Full coverage - 6 month policy',
+          type: 'bill',
+          frequency: 'semi-annually'
+        }
+      ];
+    }
+
     function loadData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         items = JSON.parse(saved);
       } else {
-        // Seed with example data (mix of subscriptions and bills)
-        items = [
-          {
-            id: 'ex1',
-            name: 'Netflix',
-            cost: 15.49,
-            nextRenewal: '2026-02-18',
-            notes: 'Premium plan',
-            type: 'subscription',
-            frequency: 'monthly'
-          },
-          {
-            id: 'ex2',
-            name: 'Spotify',
-            cost: 10.99,
-            nextRenewal: '2026-02-12',
-            notes: 'Family',
-            type: 'subscription',
-            frequency: 'monthly'
-          },
-          {
-            id: 'ex3',
-            name: 'YouTube Premium',
-            cost: 13.99,
-            nextRenewal: '2026-02-25',
-            notes: '',
-            type: 'subscription',
-            frequency: 'monthly'
-          },
-          {
-            id: 'ex4',
-            name: 'GitHub Pro',
-            cost: 4.00,
-            nextRenewal: '2026-02-10',
-            notes: 'Annual discount applied',
-            type: 'subscription',
-            frequency: 'monthly'
-          },
-          {
-            id: 'ex5',
-            name: 'Adobe Creative Cloud',
-            cost: 59.99,
-            nextRenewal: '2026-03-01',
-            notes: 'Student discount',
-            type: 'subscription',
-            frequency: 'yearly'
-          },
-          {
-            id: 'ex6',
-            name: 'Electric Bill',
-            cost: 142.00,
-            nextRenewal: '2026-02-15',
-            notes: 'Average monthly',
-            type: 'bill',
-            frequency: 'monthly'
-          },
-          {
-            id: 'ex7',
-            name: 'Car Insurance',
-            cost: 1248.00,
-            nextRenewal: '2026-06-01',
-            notes: 'Full coverage - 6 month policy',
-            type: 'bill',
-            frequency: 'semi-annually'
-          }
-        ];
+        items = createSeedData();
         saveData();
       }
     }
@@ -524,8 +562,8 @@
       empty.classList.add('hidden');
       
       // Sort by renewal date ascending
-      const sorted = [...toRender].sort((a, b) => 
-        new Date(a.nextRenewal) - new Date(b.nextRenewal)
+      const sorted = [...toRender].sort((a, b) =>
+        new Date(a.nextRenewal + 'T00:00:00') - new Date(b.nextRenewal + 'T00:00:00')
       );
 
       tbody.innerHTML = sorted.map(item => {
@@ -574,7 +612,7 @@
               <div class="truncate">${escapeHtml(item.notes || '')}</div>
             </td>
             <td class="px-4 py-4">
-              <div class="flex items-center gap-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="row-actions flex items-center gap-x-1 transition-opacity">
                 <button onclick="markAsPaid('${item.id}')" 
                         class="px-2.5 py-1 text-xs rounded-xl bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 transition-colors"
                         title="Mark as paid &amp; advance by frequency">
@@ -631,10 +669,7 @@
       document.getElementById('input-type').value = 'subscription';
       document.getElementById('input-frequency').value = 'monthly';
       
-      // Default to 30 days from now
-      const defaultDate = new Date();
-      defaultDate.setDate(defaultDate.getDate() + 30);
-      document.getElementById('input-date').value = defaultDate.toISOString().split('T')[0];
+      document.getElementById('input-date').value = daysFromNow(30);
       
       document.getElementById('modal').classList.remove('hidden');
       document.getElementById('modal').classList.add('flex');
@@ -749,8 +784,7 @@
       const lastDay = new Date(newYear, newMonth + 1, 0).getDate();
       if (newDay > lastDay) newDay = lastDay;
       
-      const newD = new Date(newYear, newMonth, newDay);
-      return newD.toISOString().split('T')[0];
+      return toLocalDateStr(new Date(newYear, newMonth, newDay));
     }
 
     function markAsPaid(id) {
@@ -960,7 +994,15 @@
       }
     }
 
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
     // Boot
+    registerServiceWorker();
     window.onload = init;
   </script>
 </body>
